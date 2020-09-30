@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "C:\\Users\\danyl\\Documents\\Contino\\9 Semestre\\almacen\\build\\barcode_scan\\intermediates\\res\\merged\\release\\xml\\standalone_badge.xml",
+        "source": "C:\\Users\\danyl\\.gradle\\caches\\transforms-2\\files-2.1\\74836238f8985b95b9be999c7611f26b\\material-1.1.0\\res\\xml\\standalone_badge.xml"
+    },
+    {
+        "merged": "C:\\Users\\danyl\\Documents\\Contino\\9 Semestre\\almacen\\build\\barcode_scan\\intermediates\\res\\merged\\release\\xml\\standalone_badge_gravity_bottom_end.xml",
+        "source": "C:\\Users\\danyl\\.gradle\\caches\\transforms-2\\files-2.1\\74836238f8985b95b9be999c7611f26b\\material-1.1.0\\res\\xml\\standalone_badge_gravity_bottom_end.xml"
+    },
+    {
+        "merged": "C:\\Users\\danyl\\Documents\\Contino\\9 Semestre\\almacen\\build\\barcode_scan\\intermediates\\res\\merged\\release\\xml\\standalone_badge_gravity_top_start.xml",
+        "source": "C:\\Users\\danyl\\.gradle\\caches\\transforms-2\\files-2.1\\74836238f8985b95b9be999c7611f26b\\material-1.1.0\\res\\xml\\standalone_badge_gravity_top_start.xml"
+    },
+    {
+        "merged": "C:\\Users\\danyl\\Documents\\Contino\\9 Semestre\\almacen\\build\\barcode_scan\\intermediates\\res\\merged\\release\\xml\\standalone_badge_gravity_bottom_start.xml",
+        "source": "C:\\Users\\danyl\\.gradle\\caches\\transforms-2\\files-2.1\\74836238f8985b95b9be999c7611f26b\\material-1.1.0\\res\\xml\\standalone_badge_gravity_bottom_start.xml"
+    }
+]

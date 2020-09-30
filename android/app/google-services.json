@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "707713147319",
+    "firebase_url": "https://almacen-4a9ad.firebaseio.com",
+    "project_id": "almacen-4a9ad",
+    "storage_bucket": "almacen-4a9ad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:707713147319:android:c9e9059731787a8925c832",
+        "android_client_info": {
+          "package_name": "com.sistemascontino.almacen"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "707713147319-i99p54hd8am3teakh242q98d612rs44c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sistemascontino.almacen",
+            "certificate_hash": "f74657afc3d0c4c614c680dbc2b7d2fcccbaa2d1"
+          }
+        },
+        {
+          "client_id": "707713147319-v0dm3pkchlujtqil92kd7fnpm9gtqrau.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDT_qEyR34j4wMhLvamiFn74MUj_sypbDQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "707713147319-v0dm3pkchlujtqil92kd7fnpm9gtqrau.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
