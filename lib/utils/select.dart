@@ -12,7 +12,7 @@ class Selection extends StatefulWidget {
   Selection({Key key}) : super(key: key);
   @override
   _SelectionState createState() => _SelectionState();
-}
+} 
 
 class _SelectionState extends State<Selection> {
 
@@ -32,6 +32,7 @@ class _SelectionState extends State<Selection> {
       headers: Header.headers,
       body: jsonEncode(jsonObject)
     );
+    print(response);
 
     var datauser = json.decode(response.body);
     var responseCode = datauser['code'];
