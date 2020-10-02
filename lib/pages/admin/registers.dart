@@ -21,7 +21,8 @@ class _RegistersState extends State<Registers> {
 bool _isLoading = false;
 List registers;
 
-Future<String> getData() async {
+Future<bool> getData() async {
+  try{
   this.setState(() {
     _isLoading = false;
   });
@@ -47,7 +48,11 @@ Future<String> getData() async {
       _isLoading = true;
     });
   }
-  return "Success!";
+  return true;
+  }catch(e){
+    print(e);
+  }
+  return true;
 }
 
 @override
@@ -58,7 +63,8 @@ Future<String> getData() async {
 
   @override
   Widget build(BuildContext context) {
-    return new RefreshIndicator(
+    return new
+     RefreshIndicator(
         color: Colors.orange,
         //Cuando se recarga la página se actualizarán los datos en la base de datos local y cargará de nuevo la pantalla
         onRefresh: () async {
@@ -99,10 +105,11 @@ Future<String> getData() async {
                               _isLoading = false;
                             });
                             // await getData();
-                            // print(Firebase.apps.length);
-                            // await Firebase.initializeApp();
+                            try{
+                            await Firebase.initializeApp().then((value) async => await getData());
                             RestartWidget.restartApp(context);
-                            await getData();
+                            }catch(e){print(e);}
+                            
                             // await Firebase.initializeApp();
                           }
                           if(value == null){
@@ -113,7 +120,17 @@ Future<String> getData() async {
               );
               },
             ),
-          ):Center(child:Text("No hay registros")):Center(child: CircularProgressIndicator(),)
+          ):RefreshIndicator(
+        color: Colors.orange,
+        //Cuando se recarga la página se actualizarán los datos en la base de datos local y cargará de nuevo la pantalla
+        onRefresh: () async {
+          await getData();
+        },
+        child:
+          Container(child:
+          Center(child:Text("No hay registros"))
+          )
+          ):Center(child: CircularProgressIndicator(),)
     )
     );
   }

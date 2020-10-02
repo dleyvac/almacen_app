@@ -2,8 +2,14 @@
 import 'package:almacen/main.dart';
 import 'package:almacen/utils/colors.dart';
 import 'package:almacen/utils/firebase_auth.dart';
+import 'package:almacen/utils/header.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:almacen/utils/api.dart';
+import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'dart:convert';
 
 
 class LogoutPage extends StatefulWidget {
@@ -16,6 +22,9 @@ class LogoutPage extends StatefulWidget {
 class _LogoutPageState extends State<LogoutPage> {
   bool _isLoading = false;
   String email = "";
+  String name = "";
+  String organization = "";
+  String sub = "";
   TextStyle contentStyle = TextStyle(
     fontSize: 15,
     fontWeight: FontWeight.normal,
@@ -32,10 +41,44 @@ class _LogoutPageState extends State<LogoutPage> {
     final FirebaseAuth _auth = FirebaseAuth.instance;
     // var user = await _auth.currentUser();
     var user = _auth.currentUser;
+
+
     this.setState(() {
+      _isLoading = false;
       this.email = user.email;
-      this._isLoading = true;
+      // this._isLoading = true;
     });
+    print("USER_ID");
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    var userID = preferences.get('USER_ID');
+    var orgID = preferences.get('ORGANIZATION_ID');
+    var subID = preferences.get('SUBINVENTORY_ID');
+
+    var jsonObject = {
+      "USER_ID": userID,
+      "ORGANIZATION_ID": orgID,
+      "SUBINVENTORY_ID": subID
+    };
+    // print(jsonObject);
+
+    final response = await http.put("${APIKey.apiURL}/profile", 
+      headers: Header.headers,
+      body: jsonEncode(jsonObject)
+    );
+
+    var datauser = json.decode(response.body);
+    var responseData = datauser['data'];
+
+    // print(responseData);
+    this.setState(() {
+      email = responseData[0]["EMAIL"];
+      name = responseData[0]["NOMBRE_PERSONA"];
+      organization = responseData[0]["ORGANIZATION_NAME"];
+      sub = responseData[0]["DESCRIPTION"];
+      _isLoading = true;
+    });
+
+    
     return "Success!";
   }
 
@@ -119,16 +162,16 @@ class _LogoutPageState extends State<LogoutPage> {
                   ),
                   ),
                   Text("Nombre", style: titletStyle,),
-                  Text("Daniel Leyva Caballero", style: contentStyle),
+                  Text(name, style: contentStyle),
                   SizedBox(height: 10),
-                  Text("Correo Electrónico", style: titletStyle,),
+                  Text(email, style: titletStyle,),
                   Text(email, style: contentStyle),
                   SizedBox(height: 20),
                   Text('Sucursal', style: titletStyle,),
-                  Text('Veracruz', style: contentStyle,),
+                  Text(organization, style: contentStyle,),
                   SizedBox(height: 10),
                   Text('Subinventario', style: titletStyle,),
-                  Text('1241', style: contentStyle,),
+                  Text(sub, style: contentStyle,),
                   SizedBox(height: 40),
                 ],
               ),

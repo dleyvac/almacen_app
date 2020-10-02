@@ -82,8 +82,8 @@ Future<bool> getData() async {
 
 Future<bool> createRecepcion() async{
   var today = DateTime.now();
-  String recID = "${today.second}${today.month}${today.millisecond}${today.minute}${today.minute}${today.minute}$lineID";
-  String folioEntrada = "${today.day}${today.month}${today.year}${today.hour}${today.minute}${today.second}${today.millisecond}";
+  String recID = "${today.day}${today.month}}${today.year}${today.minute}}${today.hour}";
+  String folioEntrada = "${today.month}${today.minute}}${today.day}${today.year}}${today.hour}";
   
   var jsonObject = {
       "RECEPCION_ID": recID,

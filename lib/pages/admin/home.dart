@@ -1,5 +1,6 @@
 import 'package:almacen/pages/admin/registers.dart';
 import 'package:almacen/pages/admin/logout.dart';
+import 'package:almacen/pages/admin/users.dart';
 import 'package:almacen/utils/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -36,7 +37,8 @@ this.setState(() {
 static const List<Widget> _widgetOptions = <Widget>[
   // Orders(),
   RegistersPage(),
-  Logout()
+  UsersPage(),
+  Logout(),
   // OrdersTest(),
   // Logout(),
 ];
@@ -61,6 +63,11 @@ Widget build(BuildContext context) {
           icon: Icon(Icons.list),
           title: Text('Registros'),
           backgroundColor: ColorsStyle.continoPrimary,              
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.people),
+          title: Text('Usuarios'),
+          backgroundColor: ColorsStyle.continoPrimary,
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.exit_to_app),
