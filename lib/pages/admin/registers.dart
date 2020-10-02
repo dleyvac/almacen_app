@@ -101,13 +101,11 @@ Future<bool> getData() async {
                         )
                         .then((value) async {
                           if(value == true){
-                            this.setState(() {
-                              _isLoading = false;
-                            });
                             // await getData();
                             try{
                             await Firebase.initializeApp().then((value) async => await getData());
                             RestartWidget.restartApp(context);
+                            getData();
                             }catch(e){print(e);}
                             
                             // await Firebase.initializeApp();
