@@ -4,6 +4,7 @@ import 'package:almacen/utils/colors.dart';
 import 'package:almacen/utils/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -13,15 +14,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SendWsPage extends StatefulWidget {
   SendWsPage({Key key, this.lineID, this.cantidad,}) : super(key: key, );
   final String lineID;
-  final int cantidad;
+  final String cantidad;
 
   @override
-  _SendWsPageState createState() => _SendWsPageState(lineID);
+  _SendWsPageState createState() => _SendWsPageState(lineID, cantidad);
 }
 
 class _SendWsPageState extends State<SendWsPage> {
   String lineID;
-  int cantidad;
+  String cantidad;
   List dataLine;
   List dataTemp;
   List dataCheck = [];
@@ -32,12 +33,17 @@ class _SendWsPageState extends State<SendWsPage> {
   bool _isLoading = false;
   bool _isComplete = false;
 
-  _SendWsPageState(String lineID) {
+  TextEditingController cantidadSolicitada = TextEditingController();
+
+  _SendWsPageState(String lineID, String cantidad) {
     this.lineID = lineID;
+    this.cantidad = cantidad;
   }
 
 
 Future<bool> getSub()async{
+  print("CANTIDAD SOLICITADA: $cantidad");
+  print("CANTIDAD SOLICITADA: $cantidad");
   var jsonObject = {
     "LINE_LOCATION_ID": lineID,
   };
@@ -109,7 +115,9 @@ Future<bool>getByText(String factura) async {
 }
 
 Future<bool> checkComplete()async{
-  if(folio.trim() == null || folio.trim() == ""){
+  // int cantSol = int.parse(cantidadSolicitada.text);
+  if(folio.trim() == null || folio.trim() == "" || 
+  cantidadSolicitada.text == null || cantidadSolicitada.text == ""){
     this.setState(() {
       _isComplete = false;
     });
@@ -133,8 +141,9 @@ Future<bool> createID() async{
 
 Future<bool> createRecepcion() async{
   var today = DateTime.now();
-  String recID = "${today.day}${today.month}${today.year}${today.minute}${today.hour}";
-  String folioEntrada = "${today.month}${today.minute}${today.day}${today.year}${today.hour}";
+  String last = lineID.substring(lineID.length - 5,lineID.length);
+  String recID = "${today.month}$last${today.year}${today.second}${today.day}";
+  String folioEntrada = "${today.month}${today.millisecond}${today.minute}${today.day}${today.second}${today.year}${today.hour}";
   SharedPreferences preferences = await SharedPreferences.getInstance();
   
   var jsonObject = {
@@ -142,7 +151,7 @@ Future<bool> createRecepcion() async{
       "FOLIO_ENTRADA_ALMACEN": folioEntrada,
       "LINE_LOCATION_ID": lineID,
       "FACTURA": folio,
-      "CANT_RECIBIDA": cantidad,
+      "CANT_RECIBIDA": int.parse(cantidadSolicitada.text),
       "USER_ID": preferences.get('USER_ID')
     };
 
@@ -195,6 +204,12 @@ void initState(){
         title: new Text("Subir Línea sin Series"),
       ),
       body: 
+      WillPopScope(
+        onWillPop: () async {
+          Navigator.pop(context, false);
+          return false;
+        },
+        child:  
       _isLoading?
         Container(
         child:
@@ -214,6 +229,22 @@ void initState(){
                 onTap: ()async{
                   await getByText(folio);
                 },
+              ),
+              ListTile(
+                title: Text("Cantidad Solicitada"),
+                subtitle: Text(cantidad.toString()),
+              ),
+              ListTile(
+                title: Text("Cantidad Recibida"),
+                subtitle: TextField(
+                  onChanged: (value)async{
+                    await checkComplete();
+                  },
+                  controller: cantidadSolicitada,
+                  decoration: new InputDecoration(labelText: "Escriba la cantidad recibida"),
+                  keyboardType: TextInputType.number, 
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  ),
               ),
               ListTile(
                 title: Text("Subinventario"),
@@ -237,6 +268,7 @@ void initState(){
           ),
         ),
       ): Center(child:CircularProgressIndicator())
+      ),
     );
   }
 }
@@ -244,7 +276,7 @@ void initState(){
 class SendWs extends StatelessWidget {
   SendWs({Key key, this.lineID, this.cantidad}) : super(key: key);
   final String lineID;
-  final int cantidad;
+  final String cantidad;
 
   @override
   Widget build(BuildContext context) {

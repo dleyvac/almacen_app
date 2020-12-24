@@ -82,9 +82,14 @@ Future<bool> getData() async {
 
 Future<bool> createRecepcion() async{
   var today = DateTime.now();
-  String recID = "${today.day}${today.month}${today.year}${today.minute}${today.hour}";
-  String folioEntrada = "${today.month}${today.minute}${today.day}${today.year}${today.hour}";
-  
+  String last = lineID.substring(lineID.length - 5,lineID.length);
+  String recID = "${today.month}$last${today.year}${today.second}${today.day}";
+
+  // $rec_id = (int) $month.substr($line_id, -5).$year.$sec.$rand.$day;
+  String folioEntrada = "${today.month}${today.millisecond}${today.minute}${today.day}${today.second}${today.year}${today.hour}";
+  this.setState(() {
+        _isLoading = false;
+  });
   var jsonObject = {
       "RECEPCION_ID": recID,
       "FOLIO_ENTRADA_ALMACEN": folioEntrada,
@@ -103,6 +108,9 @@ Future<bool> createRecepcion() async{
     var receptionData = json.decode(response.body);
     if(receptionData["code"]==200){
       await setSeries(recID);
+      this.setState(() {
+        _isLoading = true;
+      });
       print("recepcion creada");
       return true;
     }else{
@@ -114,6 +122,7 @@ Future setSeries(String recID)async{
   for(var index = 0; index < dataTemp.length; index++){
     var serie = dataTemp[index]["SERIE"];
     var jsonObject = {
+      "LINE_LOCATION_ID": lineID,
       "RECEPCION_ID": recID,
       "SERIE": serie,
       "USER_ID": dataTemp[index]["USER_ID"]
@@ -321,6 +330,7 @@ void initState(){
                   }
                   await setCantidad();
                   if(await createRecepcion()){
+                    
                     Navigator.pop(context, true);
                   }
                 },

@@ -1,4 +1,5 @@
 import 'package:almacen/utils/colors.dart';
+import 'package:almacen/utils/error.dart';
 import 'package:almacen/utils/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage>{
+  int errorAt = 0;
   String message = "";
   String messageRegister = "";
 
@@ -217,7 +219,11 @@ class _LoginPageState extends State<LoginPage>{
   }
 
   Future<bool>getOrganizations() async{
-
+    this.setState(() {
+      _isLoading = false;
+      errorAt = 0;
+    });
+    try{
     final response = await http.get("${APIKey.apiURL}/organizations", 
       headers: Header.headers
     );
@@ -240,6 +246,19 @@ class _LoginPageState extends State<LoginPage>{
         });
       }
     }  
+  }catch(e){
+    if(e.runtimeType.toString() == "SocketException"){
+      this.setState(() {
+        _isLoading = true;
+        errorAt = 400;
+      });
+      // Navigator.pushReplacement(
+      // context,
+      // MaterialPageRoute(builder: (context) => ErrorPage(error: 400, returnAt: 2)
+      // )
+      // );
+    }
+  }
       return true;
   }
 
@@ -304,7 +323,9 @@ class _LoginPageState extends State<LoginPage>{
 
     return  new DefaultTabController(
       length: 2,
-      child: Scaffold(
+      child: 
+      _isLoading ?
+      Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         flexibleSpace: new Column(
@@ -323,7 +344,9 @@ class _LoginPageState extends State<LoginPage>{
         ),
       ),
         backgroundColor: Colors.white,
-        body: new TabBarView(
+        body: 
+        errorAt != 400 ?
+        new TabBarView(
           physics: BouncingScrollPhysics(),
           children: <Widget>[
             new Container(
@@ -426,8 +449,56 @@ class _LoginPageState extends State<LoginPage>{
             ),
             ),
           ]
-        ),
-      ),
+        ): 
+        Container(
+              color: Colors.white,
+              child: 
+              Padding(
+              padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
+              child:
+              new Column(
+                
+                //Vista de la información básica del equipo, cada ListTile muestra el contenido de la información
+                children: <Widget>[
+                  Expanded(
+                  child: Align(
+                  alignment: Alignment.center,
+                  child: 
+                  new ListView(
+                  shrinkWrap: true,
+                  physics: BouncingScrollPhysics(),
+                  children: <Widget>[
+                  Padding(
+                  padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    radius: 90.0,
+                    child: Image.asset('assets/images/error.png'),
+                  ),
+                  ),
+                  SizedBox(height: 30),
+                  Center(child: Text("No tienes acceso a la red", style: title,)),
+                  SizedBox(height: 5),
+                  Center(child: Text("Comprueba tu acceso a la red", style: subtitle,)),
+                  SizedBox(height: 20),
+                  RaisedButton(
+                    color: Colors.orangeAccent,
+                    elevation: 0,
+                    child: Text("Intentar de nuevo", style: TextStyle(color: Colors.white),),
+                    onPressed: ()async{
+                      await getOrganizations();
+                    },
+                  )
+                  ]
+                  ),
+                  ),
+                  ),
+                      
+                  ]
+                  ),
+                ),
+              ),
+      ): Scaffold(body: Center(child: CircularProgressIndicator(),)),
     );
   }
 

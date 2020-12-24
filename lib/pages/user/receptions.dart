@@ -165,7 +165,8 @@ Future<bool>getValidation() async {
     });
   var counter = 0;
   for(var index = 0; index < dataTemp.length; index++){
-    if(dataTemp[index]["STATUS"] == "INCOMPLETE" || dataTemp[index]["STATUS"] == "DUPLICATE"){
+    if(
+      dataTemp[index]["STATUS"] == "DUPLICATE"){
       counter++;
     }
   }
@@ -198,31 +199,32 @@ Future<bool>saveTemp(index) async {
     );
   return true;
 }
-// Future<bool>saveTempAll() async {
-//   SharedPreferences preferences = await SharedPreferences.getInstance();
-//   var userID = preferences.get('USER_ID');
-//   for(var index = 0; index < dataTemp.length; index++){
-//     var tempID = dataTemp[index]["TEMP_ID"];
-//     var serie = dataTemp[index]["SERIE"];
-//     var status = dataTemp[index]["STATUS"];
+Future<bool>saveTempAll() async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  var userID = preferences.get('USER_ID');
+  for(var index = 0; index < dataTemp.length; index++){
+    var tempID = dataTemp[index]["TEMP_ID"];
+    var serie = dataTemp[index]["SERIE"];
+    var status = dataTemp[index]["STATUS"];
 
-//     var jsonObject = {
-//       "TEMP_ID": tempID,
-//       "SERIE": serie,
-//       "STATUS": status,
-//       "USER_ID": userID,
-//     };
+     var jsonObject = {
+      "TYPE": "SAVE",
+      "TEMP_ID": tempID,
+      "SERIE": serie,
+      "STATUS": status,
+      "USER_ID": userID,
+    };
 
-//     final response = await http.put("${APIKey.apiURL}/temp", 
-//       headers: Header.headers,
-//       body: jsonEncode(jsonObject)
-//     );
+    final response = await http.put("${APIKey.apiURL}/temp", 
+      headers: Header.headers,
+      body: jsonEncode(jsonObject)
+    );
 
-//     var tempUpdateData = json.decode(response.body);
-//     print(tempUpdateData);
-//   }
-//   return true;
-// }
+     var tempUpdateData = json.decode(response.body);
+     print(tempUpdateData);
+   }
+   return true;
+ }
 
 Future<bool>getDoppler() async {
   List dopplers = [];
@@ -279,8 +281,8 @@ Future<bool> scanAtFirst() async {
 @override
 void initState(){
   super.initState();
-  this.scanAtFirst();
-  // this.getData();
+  // this.scanAtFirst();
+  this.getData();
 }
 
 
@@ -295,7 +297,8 @@ void initState(){
           IconButton(icon: Icon(
             Icons.assignment_turned_in),
             color: Colors.orange,
-            onPressed: (){
+            onPressed: ()async{
+              if(await saveTempAll()){
               Navigator.push( 
                 context, new MaterialPageRoute(
                   builder: (context) => new Send(
@@ -311,6 +314,7 @@ void initState(){
                   Navigator.pop(context, false);
                 }
               });
+              }
             },
             ):
           IconButton(icon: Icon(Icons.assignment_turned_in),color: Colors.grey,onPressed: null,)

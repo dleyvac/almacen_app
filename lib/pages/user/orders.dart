@@ -30,6 +30,7 @@ int _isSelected = 1;
 DateTime dateStartSelected;
 DateTime dateEndSelected = DateTime.now();
 var _controller = TextEditingController();
+String searchValue = "";
 
 
 Future<DateTime> _selectStartDate(BuildContext context) async {
@@ -83,6 +84,8 @@ Future<String> getData() async {
       var responseCodeSub = datasub['code'];
 
       if(responseCodeSub == 200){
+        print("AQUI SUBINVENTARIOS");
+        print(responseDataSub);
         if (this.mounted) { 
         this.setState(() {
           subinventory = responseDataSub;
@@ -113,7 +116,7 @@ Future<String> getData() async {
         print(responseMessage);
         
         // await buildLines(registers);
-        // print(proveedor);
+        //print(proveedor);
         this.setState(() {
           _isLoading = true;
         });
@@ -155,7 +158,7 @@ Future<bool> buildLines(registersBuild) async{
           this.setState(() {
             var prov = {
               "PROVEEDOR": provider,
-              "VALUE": true
+              "VALUE": false
             };
             proveedores.add(provider);
             proveedor.add(prov);
@@ -168,7 +171,7 @@ Future<bool> buildLines(registersBuild) async{
             this.setState(() {
               var prov = {
               "PROVEEDOR": provider,
-              "VALUE": true
+              "VALUE": false
             };
             proveedores.add(provider);
             proveedor.add(prov);
@@ -206,6 +209,36 @@ void getProveedor(provs) async{
   List provs = [];
   for(var index = 0; index < proveedor.length; index ++){
     if(proveedor[index]["VALUE"] == true){
+      var prov = proveedor[index]["PROVEEDOR"];
+      for(var i = 0; i < registers.length; i ++){
+        if(registers[i]["PROVEEDOR"] == prov){
+          provs.add(registers[i]);
+        }
+      }
+    }
+  }
+  if(dateStartSelected != null){
+    getDate(provs);
+  }else{
+    if (this.mounted) { 
+    this.setState(() {
+      registers = provs;
+    });
+    }
+  }
+}
+
+void restartFilter(provs) async{
+  if (this.mounted) { 
+  this.setState(() {
+    registers = registersCopy;
+    dateStartSelected = null;
+  });
+  }
+  List provs = [];
+  for(var index = 0; index < proveedor.length; index ++){
+    proveedor[index]["VALUE"] = false;
+    if(proveedor[index]["VALUE"] == false){
       var prov = proveedor[index]["PROVEEDOR"];
       for(var i = 0; i < registers.length; i ++){
         if(registers[i]["PROVEEDOR"] == prov){
@@ -333,7 +366,7 @@ Future<bool> createTemp(cantidad, numOC, lineID) async {
                     activeColor: ColorsStyle.continoSecondary,
                     value: int.parse(subinventory[index]["SUBINVENTORY_ID"]),
                     groupValue: _isSelected,
-                    title: Text(subinventory[index]["NAME"]),
+                    title: Text(subinventory[index]["NAME"].toString()),
                     onChanged: (value) {
                       print(value);
                       setState(() {
@@ -395,15 +428,17 @@ Future<bool> createTemp(cantidad, numOC, lineID) async {
     return Scaffold(
       drawer:
       _isLoading ?
-      registers.isNotEmpty ? 
-      Container(width:250, child: Drawer(
+      // registers.isNotEmpty ? 
+      Container(child: Drawer(
         child: 
         ListView(
           shrinkWrap: true,
-          physics: BouncingScrollPhysics(),
+          physics: ClampingScrollPhysics(),
+          // physics: BouncingScrollPhysics(),
           children: <Widget>[
             ListView(
               shrinkWrap: true,
+              physics: ClampingScrollPhysics(),
               children: [
                 ExpansionTile(
                   title: Text("Proveedor"),
@@ -411,7 +446,8 @@ Future<bool> createTemp(cantidad, numOC, lineID) async {
                   children: [
                     ListView.builder(
                       shrinkWrap: true,
-                      physics: BouncingScrollPhysics(),
+                      physics: ClampingScrollPhysics(),
+                      // physics: BouncingScrollPhysics(),
                       itemCount: proveedor == null ? 0 : proveedor.length,
                       itemBuilder: (BuildContext context, int index) {
                         return CheckboxListTile(
@@ -468,10 +504,22 @@ Future<bool> createTemp(cantidad, numOC, lineID) async {
                   },
                 )
                 ),
+                SizedBox(
+                width: double.infinity,
+                child:
+                RaisedButton(
+                  color: Colors.red,
+                  child: Text("Borrar filtros", style: TextStyle(color: Colors.white),),
+                  onPressed: () async{
+                    await getData();
+                    restartFilter(await buildProveedor());
+                  },
+                )
+                ),
           ],
         ), 
       ),
-    ): null:null,
+    ): null,
       appBar: AppBar(
         title: new Text("Órdenes de Compra", style: TextStyle(color: Colors.white),),
         backgroundColor: ColorsStyle.continoPrimary
@@ -491,17 +539,27 @@ Future<bool> createTemp(cantidad, numOC, lineID) async {
                 hoverColor: Colors.orange,
                 contentPadding: EdgeInsets.all(20.0),
                 hintText: "Buscar número de orden o linea",
-                suffixIcon: IconButton(
+                prefixIcon: IconButton(
                   color: Colors.orangeAccent,
                   icon: Icon(Icons.cancel),
                   onPressed: () async {
                     await clearController();
                   }
                 ),
+                suffixIcon: IconButton(
+                  color: Colors.orangeAccent,
+                  icon: Icon(Icons.search),
+                  onPressed: () async {
+                    await clearController();
+                    await buildLines(registers);
+                    searchByNum(searchValue);
+                  }
+                ),
               ),
               onChanged: (String value) async {
-                await buildLines(registers);
-                searchByNum(value);
+                this.setState(() {
+                  searchValue = value;
+                });
               }
             ),
             
@@ -556,6 +614,11 @@ Future<bool> createTemp(cantidad, numOC, lineID) async {
                   });
                   if(cantidadR == 0){
                     await setSubinventory(registers[index]["LINE"][i]["LINE_LOCATION_ID"]).then((value){
+                        print("VALOR SET SUBINVENTORY");
+                        print(value);
+                    if(value["code"] == 100){
+
+                    }if(value["code"] == 200){
                         this.setState(() {
                           registers[index]["LINE"][i]["STATUS"] = status;
                         });
@@ -577,6 +640,7 @@ Future<bool> createTemp(cantidad, numOC, lineID) async {
                             print("Se cerró");
                           }
                         });
+                    }
                     });
                   }
                   if(cantidadR != 0){
@@ -618,13 +682,21 @@ Future<bool> createTemp(cantidad, numOC, lineID) async {
               registers[index]["LINE"][i]["CONTROL_SERIE"] == "N"  && registers[index]["LINE"][i]["STATUS"] != "COMPLETE"?
               ListTile(
                 title: Text(registers[index]["LINE"][i]["LINE_LOCATION_ID"]),
-                subtitle: Text(registers[index]["LINE"][i]["DESCRIPCION"]),
+                subtitle: Text("$desc\nCantidad Solicitada: $cantS\nCantidad Recibida: $cantR"),
+                // subtitle: Text(registers[index]["LINE"][i]["DESCRIPCION"]),
                 onTap: () async{
-                  var cantidadR = int.parse(registers[index]["LINE"][i]["CANT_RECIBIDA"]);
+                  print(registers[index]["LINE"][i]);
+                  var cantidadS = registers[index]["LINE"][i]["CANT_SOLICITADA"];
                   var lineID = registers[index]["LINE"][i]["LINE_LOCATION_ID"];
                   String status = registers[index]["LINE"][i]["STATUS"];
                   await setSubinventory(registers[index]["LINE"][i]["LINE_LOCATION_ID"]).then((value){
+                    print("VALOR SET SUBINVENTORY");
                     print(value);
+                    if(value["code"] == 100){
+
+                    }if(value["code"] == 200){
+
+                      
                       Fluttertoast.showToast(
                         msg: value["message"],
                         toastLength: Toast.LENGTH_SHORT,
@@ -637,25 +709,26 @@ Future<bool> createTemp(cantidad, numOC, lineID) async {
                       this.setState(() {
                         registers[index]["LINE"][i]["STATUS"] = status;
                       });
-                  });
-                  Navigator.push( 
-                      context, new MaterialPageRoute(
-                        builder: (context) => new SendWs(
-                          lineID: lineID,
-                          cantidad: cantidadR 
+                      Navigator.push( 
+                          context, new MaterialPageRoute(
+                            builder: (context) => new SendWs(
+                              lineID: lineID,
+                              cantidad: cantidadS
+                            )
+                          ),
                         )
-                      ),
-                    )
-                    .then((value) async {
-                      if(value){
-                        if(this.mounted){
-                          await getData();
-                        }
+                        .then((value) async {
+                          if(value){
+                            if(this.mounted){
+                              await getData();
+                            }
+                          }
+                          if(value == null){
+                            print("Se cerró");
+                          }
+                        });
                       }
-                      if(value == null){
-                        print("Se cerró");
-                      }
-                    });
+                  });
                 },
                 leading: Icon(Icons.info, color: Colors.grey,)
               ):
