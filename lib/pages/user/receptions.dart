@@ -30,6 +30,7 @@ class _ReceptionsPageState extends State<ReceptionsPage> {
   List<dynamic> lines = List<dynamic>();
   bool _isLoading = false;
   bool _isValidate = false;
+  String loadStatus = "";
   //Timer _end;
 
   _ReceptionsPageState(String lineID, String orderID) {
@@ -77,6 +78,7 @@ Future<bool>getByScan(index) async {
         dataTemp[index]["SERIE"] = scan.rawContent;
         dataTemp[index]["STATUS"] = "COMPLETE";
       });
+      
       return true; 
     }
   }
@@ -200,8 +202,14 @@ Future<bool>saveTemp(index) async {
   return true;
 }
 Future<bool>saveTempAll() async {
+  this.setState(() {
+    _isLoading = false;
+  });
+  // loadStatus
   SharedPreferences preferences = await SharedPreferences.getInstance();
   var userID = preferences.get('USER_ID');
+  int total = dataTemp.length;
+  int fill = 0;
   for(var index = 0; index < dataTemp.length; index++){
     var tempID = dataTemp[index]["TEMP_ID"];
     var serie = dataTemp[index]["SERIE"];
@@ -222,6 +230,13 @@ Future<bool>saveTempAll() async {
 
      var tempUpdateData = json.decode(response.body);
      print(tempUpdateData);
+     fill ++;
+     this.setState(() {
+      //  loadStatus = ((fill*100)/total).toString();
+      loadStatus = '${((fill*100)/total).round().toString()}%';
+     });
+
+
    }
    return true;
  }
@@ -281,7 +296,7 @@ Future<bool> scanAtFirst() async {
 @override
 void initState(){
   super.initState();
-  // this.scanAtFirst();
+  this.scanAtFirst();
   this.getData();
 }
 
@@ -311,7 +326,10 @@ void initState(){
                 if(value){
                   Navigator.pop(context, true);
                 }else{
-                  Navigator.pop(context, false);
+                  this.setState(() {
+                    _isLoading = true;
+                  });
+                  // Navigator.pop(context, false);
                 }
               });
               }
@@ -346,13 +364,14 @@ void initState(){
                   itemBuilder: (BuildContext context, int index) {
                   String serie = dataTemp[index]["SERIE"].trim();
                   String username = dataTemp[index]["USER_NAME"];
+                  
                   return ListTile(
                     title:
-                      dataTemp[index]["STATUS"] == "COMPLETE" ? Text("$index.- Serie Completa"):
-                      dataTemp[index]["STATUS"] == "INCOMPLETE" ? Text("$index.- Serie Incompleta"):
-                      dataTemp[index]["STATUS"] == "DUPLICATE" ? Text("$index.- Serie Pendiente"):
-                      dataTemp[index]["STATUS"] == "SENT" ? Text("$index.- Serie Enviada"):
-                      dataTemp[index]["STATUS"] == "NA" ? Text("$index.- Serie No Disponible"):
+                      dataTemp[index]["STATUS"] == "COMPLETE" ? Text("${index+1}. Serie Completa"):
+                      dataTemp[index]["STATUS"] == "INCOMPLETE" ? Text("${index+1}. Serie Incompleta"):
+                      dataTemp[index]["STATUS"] == "DUPLICATE" ? Text("${index+1}. Serie Pendiente"):
+                      dataTemp[index]["STATUS"] == "SENT" ? Text("${index+1}. Serie Enviada"):
+                      dataTemp[index]["STATUS"] == "NA" ? Text("${index+1}. Serie No Disponible"):
                       Text("Serie"),
                     subtitle: 
                       dataTemp[index]["SERIE"].trim() == "" ? Text("Inserta Serie"):
@@ -379,6 +398,7 @@ void initState(){
                                   await getValidation();
                                   await saveTemp(index); await getData();
                                 }
+                                await scanAtFirst();
                               }
                             ),
                             IconButton(
@@ -387,18 +407,18 @@ void initState(){
                                 await getByText(index);
                               }
                             ),
-                            IconButton(
-                              icon: Icon(Icons.watch_later),
-                              onPressed: () async {
-                                this.setState(() {
-                                  dataTemp[index]["STATUS"] = "NA";
-                                  dataTemp[index]["SERIE"] = "N/D";
-                                });
-                                await getDoppler();
-                                await getValidation();
-                                await saveTemp(index); await getData();
-                              }
-                            )
+                            // IconButton(
+                            //   icon: Icon(Icons.watch_later),
+                            //   onPressed: () async {
+                            //     this.setState(() {
+                            //       dataTemp[index]["STATUS"] = "NA";
+                            //       dataTemp[index]["SERIE"] = "N/D";
+                            //     });
+                            //     await getDoppler();
+                            //     await getValidation();
+                            //     await saveTemp(index); await getData();
+                            //   }
+                            // )
                           ],
                         ):null,
                   );
@@ -408,8 +428,22 @@ void initState(){
             ),
           ],
         )
-      ): Center(child:CircularProgressIndicator())
+      ): Center(child:
+        Container(
+          child: Stack(
+            children: <Widget>[
+              Center(
+                child: Container(
+                  child: new CircularProgressIndicator(
+                  ),
+                ),
+              ),
+              Center(child: Text(loadStatus)),
+            ],
+          )
+        ),
       ),
+      )
     );
   }
 }

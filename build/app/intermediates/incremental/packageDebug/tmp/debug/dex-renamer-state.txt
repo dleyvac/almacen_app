@@ -1,4 +1,4 @@
-#Wed Nov 25 17:39:21 CST 2020
+#Mon Dec 28 12:48:04 CST 2020
 base.2=C\:\\Users\\danyl\\Documents\\Contino\\9 Semestre\\almacen\\build\\app\\intermediates\\dex\\debug\\mergeExtDexDebug\\out\\classes2.dex
 base.1=C\:\\Users\\danyl\\Documents\\Contino\\9 Semestre\\almacen\\build\\app\\intermediates\\dex\\debug\\mergeProjectDexDebug\\out\\classes.dex
 base.0=C\:\\Users\\danyl\\Documents\\Contino\\9 Semestre\\almacen\\build\\app\\intermediates\\dex\\debug\\mergeExtDexDebug\\out\\classes.dex

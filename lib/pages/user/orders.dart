@@ -675,7 +675,8 @@ Future<bool> createTemp(cantidad, numOC, lineID) async {
                 onTap: () async{
                 },
                 leading:
-                  registers[index]["LINE"][i]["STATUS"] == "LOADING"? 
+                  registers[index]["LINE"][i]["STATUS"] == "LOADING"?
+                  // loadStatus = '${((fill*100)/total).round().toString()}%'; 
                   CircularProgressIndicator():
                   Icon(Icons.done_all, color: Colors.green,)
               ):

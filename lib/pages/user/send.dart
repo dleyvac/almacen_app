@@ -310,6 +310,7 @@ void initState(){
                     String serie = dataTemp[index]["SERIE"].trim();
                     String user = dataTemp[index]["USER_NAME"];
                     return ListTile(
+                      leading: Text("#${index+1}"),
                       title:
                         Text("Serie"),
                       subtitle: 
